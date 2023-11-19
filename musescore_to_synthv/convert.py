@@ -1,8 +1,9 @@
 import re
 import os
 import argparse
+from pathlib import Path
 from .common import jp_to_hr
-from . import musescore_parser 
+from . import musescore_parser
 
 ONE_BEAT = 705600000
 TAB = '  '
@@ -284,13 +285,20 @@ def write_to_file(file_name, data):
         write_file.write(data)
 
 
+def prompt_overwrite(file_path):
+    """ Prompt the user to overwrite an existing file. """
+    response = input(
+        f"The file {file_path} already exists. Overwrite? (y/n): ").strip().lower()
+    return response == 'y'
+
+
 def convert(readfile, writefile, use_dict):
     global output_string
     global use_hr_dict
     use_hr_dict = use_dict
     output_string += generate_project_start()
-    musescore_parser.parse_xml(readfile, set_staff_start, set_staff_end,
-                               set_time_signature, set_pitch, set_rest, set_lyric, set_tie, set_dot, set_tuplet)
+    musescore_parser.XMLParser().parse_xml(readfile, set_staff_start, set_staff_end,
+                                           set_time_signature, set_pitch, set_rest, set_lyric, set_tie, set_dot, set_tuplet)
     output_string += generate_staff_end()
     output_string += generate_project_end()
     write_to_file(writefile, output_string)
@@ -299,8 +307,10 @@ def convert(readfile, writefile, use_dict):
 def main():
     parser = argparse.ArgumentParser(description="Your script description")
     parser.add_argument('readfile', type=str, help='Path to the input file')
-    parser.add_argument('writefile', type=str, help='Path to the output file')
-    parser.add_argument('-d', '--dict', action='store_true', help='Use dictionary flag')
+    parser.add_argument('writefile', type=str, nargs='?',
+                        help='Path to the output file')
+    parser.add_argument('-d', '--dict', action='store_true',
+                        help='Use dictionary flag')
 
     args = parser.parse_args()
 
@@ -308,7 +318,18 @@ def main():
     if not os.path.exists(args.readfile):
         raise FileNotFoundError(f"The file {args.readfile} does not exist.")
 
-    main(args.readfile, args.writefile, args.dict)
+    # If writefile is not provided, use readfile's name with .svp extension
+    if args.writefile is None:
+        args.writefile = Path(args.readfile).with_suffix('.s5p')
+
+    # Check if the writefile exists and prompt for overwrite
+    writefile_path = Path(args.writefile)
+    if writefile_path.exists():
+        if not prompt_overwrite(writefile_path):
+            print("Operation cancelled.")
+            exit()
+
+    convert(args.readfile, args.writefile, args.dict)
 
 
 if __name__ == "__main__":
