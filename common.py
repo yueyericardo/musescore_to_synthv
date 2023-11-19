@@ -1,7 +1,3 @@
-#!/usr/bin/env python3
-
-from inspect import currentframe, getframeinfo
-import inspect
 import xml.etree.ElementTree as ET
 
 
@@ -44,23 +40,6 @@ class txt:
     TAB = '  '
 
 
-def dbg():
-    file_name = inspect.stack()[1][1]
-    line_num = inspect.stack()[1][2]
-    func_name = inspect.stack()[1][3]
-    string = ""
-    string += "["
-    string += txt.CBOLD + txt.CYELLOW
-    string += file_name.split('/')[-1]
-    string += txt.CEND
-    string += ":"
-    string += txt.CBOLD + txt.CBLUE
-    string += str(line_num)
-    string += txt.CEND
-    string += "]"
-    return (string)
-
-
 class XmlParser:
     def read_xml_tree_from_file(file_name):
         xml_tree = ET.parse(file_name)
@@ -84,3 +63,37 @@ class XmlParser:
             if child.tag == tag:
                 children.append(child)
         return children
+
+
+jp_to_hr = {
+    "a": "aa",
+    "b": "b",
+    "c": "z",
+    "č": "ch",
+    "ć": "ch",
+    "d": "d",
+    "dž": "",
+    "đ": "jh",
+    "e": "eh",
+    "f": "f",
+    "g": "g",
+    "h": "hh",
+    "i": "iy",
+    "j": "y",
+    "k": "k",
+    "l": "l",
+    "lj": "",
+    "m": "m",
+    "n": "n",
+    "nj": "",
+    "o": "ow",
+    "p": "p",
+    "r": "r",
+    "s": "s",
+    "š": "sh",
+    "t": "t",
+    "u": "uw",
+    "v": "v",
+    "z": "z",
+    "ž": "zh"
+}

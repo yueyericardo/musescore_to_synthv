@@ -2,9 +2,8 @@
 
 import click
 import re
-from common import txt
+from common import jp_to_hr
 import musescore_parser as MP
-import jp_to_hr
 
 ONE_BEAT = 705600000
 TAB = '  '
