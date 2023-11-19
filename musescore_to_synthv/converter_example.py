@@ -1,7 +1,6 @@
-#!/usr/bin/env python
-
-import click
 import re
+import os
+import argparse
 from common import jp_to_hr
 import musescore_parser as MP
 
@@ -285,21 +284,28 @@ def write_to_file(file_name, data):
         write_file.write(data)
 
 
-@click.command()
-@click.argument('readfile', type=click.Path(exists=True))
-@click.argument('writefile', type=click.Path(exists=False))
-@click.option('-d', "--dict", is_flag=True)
-def main(readfile, writefile, dict):
+def main(readfile, writefile, use_dict):
     global output_string
     global use_hr_dict
-    use_hr_dict = dict
+    use_hr_dict = use_dict
     output_string += generate_project_start()
-    MP.parse_xml(click.format_filename(readfile), set_staff_start, set_staff_end,
+    MP.parse_xml(readfile, set_staff_start, set_staff_end,
                  set_time_signature, set_pitch, set_rest, set_lyric, set_tie, set_dot, set_tuplet)
     output_string += generate_staff_end()
     output_string += generate_project_end()
-    write_to_file(click.format_filename(writefile), output_string)
+    write_to_file(writefile, output_string)
 
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Your script description")
+    parser.add_argument('readfile', type=str, help='Path to the input file')
+    parser.add_argument('writefile', type=str, help='Path to the output file')
+    parser.add_argument('-d', '--dict', action='store_true', help='Use dictionary flag')
+
+    args = parser.parse_args()
+
+    # Check if the input file exists
+    if not os.path.exists(args.readfile):
+        raise FileNotFoundError(f"The file {args.readfile} does not exist.")
+
+    main(args.readfile, args.writefile, args.dict)
