@@ -55,6 +55,8 @@ def main():
 
     convert(args.readfile, args.writefile, args.dict, args.verbose)
 
+    print(f"Successfully converted {args.readfile} to {args.writefile}")
+
 
 if __name__ == "__main__":
     main()
