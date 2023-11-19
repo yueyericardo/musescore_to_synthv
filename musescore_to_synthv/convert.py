@@ -1,8 +1,8 @@
 import re
 import os
 import argparse
-from common import jp_to_hr
-import musescore_parser as MP
+from .common import jp_to_hr
+from . import musescore_parser 
 
 ONE_BEAT = 705600000
 TAB = '  '
@@ -284,19 +284,19 @@ def write_to_file(file_name, data):
         write_file.write(data)
 
 
-def main(readfile, writefile, use_dict):
+def convert(readfile, writefile, use_dict):
     global output_string
     global use_hr_dict
     use_hr_dict = use_dict
     output_string += generate_project_start()
-    MP.parse_xml(readfile, set_staff_start, set_staff_end,
-                 set_time_signature, set_pitch, set_rest, set_lyric, set_tie, set_dot, set_tuplet)
+    musescore_parser.parse_xml(readfile, set_staff_start, set_staff_end,
+                               set_time_signature, set_pitch, set_rest, set_lyric, set_tie, set_dot, set_tuplet)
     output_string += generate_staff_end()
     output_string += generate_project_end()
     write_to_file(writefile, output_string)
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description="Your script description")
     parser.add_argument('readfile', type=str, help='Path to the input file')
     parser.add_argument('writefile', type=str, help='Path to the output file')
@@ -309,3 +309,7 @@ if __name__ == "__main__":
         raise FileNotFoundError(f"The file {args.readfile} does not exist.")
 
     main(args.readfile, args.writefile, args.dict)
+
+
+if __name__ == "__main__":
+    main()

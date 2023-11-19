@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from common import txt
+from .common import txt
 
 set_staff_start_cb = None
 set_staff_end_cb = None
