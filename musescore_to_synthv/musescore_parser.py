@@ -103,6 +103,9 @@ class XMLParser:
         self.staff_num = 0
         self.tuplet = False
         self.output_string = ""
+        self.bpm = 90
+        self.sigN = 4
+        self.sigD = 4
 
         self.SET_TAB = txt.TAB * 30
 
@@ -136,14 +139,14 @@ class XMLParser:
         string += '    "meter": [' + "\n"
         string += "        {" + "\n"
         string += '            "measure": 0,' + "\n"
-        string += '            "beatPerMeasure": 4,' + "\n"
-        string += '            "beatGranularity": 4' + "\n"
+        string += f'            "beatPerMeasure": {self.sigN},' + "\n"
+        string += f'            "beatGranularity": {self.sigD}' + "\n"
         string += "        }" + "\n"
         string += "    ]," + "\n"
         string += '    "tempo": [' + "\n"
         string += "        {" + "\n"
         string += '            "position": 0,' + "\n"
-        string += '            "beatPerMinute": 90.0' + "\n"
+        string += f'            "beatPerMinute": {self.bpm}' + "\n"
         string += "        }" + "\n"
         string += "    ]," + "\n"
         string += '    "tracks": [' + "\n"
@@ -340,6 +343,38 @@ class XMLParser:
                 d = t.text
         self.set_time_signature(n, d)
 
+    def parse_tempo_and_time_signature(self, root):
+        # Find the first 'Tempo' element in the XML
+        tempo_element = root.find('.//Tempo')
+        if tempo_element is not None:
+            # Find the 'tempo' child element
+            tempo_value_element = tempo_element.find('tempo')
+            if tempo_value_element is not None and tempo_value_element.text:
+                try:
+                    tempo_value = float(tempo_value_element.text)
+                    self.bpm = int(60 * tempo_value)
+                except ValueError:
+                    pass
+
+        # Find the first 'timesig' element in the XML
+        timesig_element = root.find('.//TimeSig')
+        if timesig_element is not None:
+            # Find the 'timesig' child element
+            timesig_N_element = timesig_element.find('sigN')
+            if timesig_N_element is not None and timesig_N_element.text:
+                try:
+                    timesig_N_value = int(timesig_N_element.text)
+                    self.sigN = timesig_N_value
+                except ValueError:
+                    pass
+            timesig_D_element = timesig_element.find('sigD')
+            if timesig_D_element is not None and timesig_D_element.text:
+                try:
+                    timesig_D_value = int(timesig_D_element.text)
+                    self.sigD = timesig_D_value
+                except ValueError:
+                    pass
+
     def parse_chord(self, v):
         duration = ""
         for c in v.findall("./"):
@@ -436,6 +471,7 @@ class XMLParser:
     def parse_xml(self):
         tree = ET.parse(self.xml_file)
         root = tree.getroot()
+        self.parse_tempo_and_time_signature(root)
         self.output_string += self.generate_project_start()
         self.parse_root(root)
         self.output_string += self.generate_project_end()
