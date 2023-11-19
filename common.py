@@ -4,6 +4,7 @@ from inspect import currentframe, getframeinfo
 import inspect
 import xml.etree.ElementTree as ET
 
+
 class txt:
     CEND = '\033[0m'
     CBOLD = '\33[1m'
@@ -42,6 +43,7 @@ class txt:
 
     TAB = '  '
 
+
 def dbg():
     file_name = inspect.stack()[1][1]
     line_num = inspect.stack()[1][2]
@@ -56,7 +58,8 @@ def dbg():
     string += str(line_num)
     string += txt.CEND
     string += "]"
-    return(string)
+    return (string)
+
 
 class XmlParser:
     def read_xml_tree_from_file(file_name):
@@ -74,7 +77,7 @@ class XmlParser:
             if child.tag == tag:
                 return child
         return None
-    
+
     def get_children_by_tag(element, tag):
         children = []
         for child in list(element):

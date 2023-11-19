@@ -25,6 +25,7 @@ tuplet = False
 output_string = ""
 use_hr_dict = False
 
+
 def get_time_signature_duration(n, d):
     # print("get_time_signature_duration")
     if (n == 4 and d == 4):
@@ -34,15 +35,17 @@ def get_time_signature_duration(n, d):
     elif (n == 6 and d == 8):
         return int(6 * int(ONE_BEAT / 2))
 
+
 duration_type = {
-    'measure' : None,
-    'whole' : int(ONE_BEAT * 4),
-    'half' : int(ONE_BEAT * 2),
-    'quarter' : int(ONE_BEAT),
-    'eighth' : int(ONE_BEAT / 2),
-    '16th' : int(ONE_BEAT / 4),
-    '32nd' : int(ONE_BEAT / 8)
+    'measure': None,
+    'whole': int(ONE_BEAT * 4),
+    'half': int(ONE_BEAT * 2),
+    'quarter': int(ONE_BEAT),
+    'eighth': int(ONE_BEAT / 2),
+    '16th': int(ONE_BEAT / 4),
+    '32nd': int(ONE_BEAT / 8)
 }
+
 
 def generate_lyric(l):
     if (l in ["-", "", '', None]):
@@ -57,6 +60,7 @@ def generate_lyric(l):
                 pass
         return string[:-1]
     return re.sub(r'\W+', '', l)
+
 
 def generate_project_start():
     string = ''
@@ -78,6 +82,7 @@ def generate_project_start():
     string += '    "tracks": [' + '\n'
     return string
 
+
 def generate_staff_start():
     global staff_num
     string = ''
@@ -90,18 +95,21 @@ def generate_staff_start():
     string += '            "notes": [' + '\n'
     return string
 
+
 def generate_note():
     string = ''
     string += '                {' + '\n'
     string += '                    "onset": ' + str(onset) + ',' + '\n'
     string += '                    "duration": ' + str(duration) + ',' + '\n'
-    string += '                    "lyric": "' + generate_lyric(lyric) + '",' + '\n'
+    string += '                    "lyric": "' + \
+        generate_lyric(lyric) + '",' + '\n'
     string += '                    "comment": "' + str(lyric) + '",' + '\n'
     string += '                    "pitch": ' + str(pitch) + ',' + '\n'
     string += '                    "dF0Vbr": 0.0' + ',' + '\n'
     string += '                    "dF0Jitter": 0.0' + '' + '\n'
     string += '                },' + '\n'
     return string
+
 
 def generate_staff_end():
     string = ''
@@ -149,6 +157,7 @@ def generate_staff_end():
     string += '        },' + '\n'
     return string
 
+
 def generate_project_end():
     string = ''
     string += '    ],' + '\n'
@@ -165,13 +174,15 @@ def generate_project_end():
     string += '}' + '\n'
     return string
 
+
 def set_staff_start():
     global onset
     onset = 0
     # print(generate_staff_start())
     global output_string
     output_string += generate_staff_start()
-    
+
+
 def set_staff_end():
     # print(generate_staff_end())
     global output_string
@@ -179,13 +190,16 @@ def set_staff_end():
     global staff_num
     staff_num += 1
 
+
 def set_time_signature(n, d):
     global time_signature_n
     time_signature_n = int(n)
     global time_signature_d
     time_signature_d = int(d)
     global duration_type
-    duration_type['measure'] = get_time_signature_duration(time_signature_n, time_signature_d)
+    duration_type['measure'] = get_time_signature_duration(
+        time_signature_n, time_signature_d)
+
 
 def set_pitch(p, d):
     global pitch
@@ -221,6 +235,7 @@ def set_pitch(p, d):
         duration = 0
         lyric = ''
 
+
 def set_rest(d):
     global onset
     global dot
@@ -240,19 +255,23 @@ def set_rest(d):
 
     onset += duration
 
+
 def set_lyric(l):
     global lyric
     global last_lyric
     lyric = l
     last_lyric = l
 
+
 def set_tie():
     global tie
     tie = True
 
+
 def set_dot(num):
     global dot
     dot = int(num)
+
 
 def set_tuplet(status):
     global tuplet
@@ -261,9 +280,11 @@ def set_tuplet(status):
     else:
         tuplet = False
 
+
 def write_to_file(file_name, data):
     with open(file_name, "w") as write_file:
         write_file.write(data)
+
 
 @click.command()
 @click.argument('readfile', type=click.Path(exists=True))
@@ -274,10 +295,12 @@ def main(readfile, writefile, dict):
     global use_hr_dict
     use_hr_dict = dict
     output_string += generate_project_start()
-    MP.parse_xml(click.format_filename(readfile), set_staff_start, set_staff_end, set_time_signature, set_pitch, set_rest, set_lyric, set_tie, set_dot, set_tuplet)
+    MP.parse_xml(click.format_filename(readfile), set_staff_start, set_staff_end,
+                 set_time_signature, set_pitch, set_rest, set_lyric, set_tie, set_dot, set_tuplet)
     output_string += generate_staff_end()
     output_string += generate_project_end()
     write_to_file(click.format_filename(writefile), output_string)
+
 
 if __name__ == '__main__':
     main()
